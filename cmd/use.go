@@ -15,13 +15,13 @@ var useCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 
-		reposPath, err := helpers.GetReposPath()
+		installedCfgsPath, err := helpers.GetInstalledCfgsPath()
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		fullRepoPath := path.Join(reposPath, name)
-		if _, err := os.Stat(fullRepoPath); os.IsNotExist(err) {
+		cfgPath := path.Join(installedCfgsPath, name)
+		if _, err := os.Stat(cfgPath); os.IsNotExist(err) {
 			log.Fatalf("Repo with name %s does not exist", name)
 		}
 
@@ -34,7 +34,7 @@ var useCmd = &cobra.Command{
 			os.Rename(currentNvimCfg, currentNvimCfg+".bak")
 		}
 
-		err = os.Symlink(fullRepoPath, currentNvimCfg)
+		err = os.Symlink(cfgPath, currentNvimCfg)
 		if err != nil {
 			log.Fatal(err)
 		}

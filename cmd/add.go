@@ -16,18 +16,18 @@ var name string
 var addCmd = &cobra.Command{
 	Use: "add",
 	Run: func(cmd *cobra.Command, args []string) {
-		reposPath, err := helpers.GetReposPath()
+		reposPath, err := helpers.GetInstalledCfgsPath()
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		fullRepoPath := path.Join(reposPath, name)
-		if _, err := os.Stat(fullRepoPath); !os.IsNotExist(err) {
+		newCfgPath := path.Join(reposPath, name)
+		if _, err := os.Stat(newCfgPath); !os.IsNotExist(err) {
 			log.Fatalf("Repo with name %s already exists", name)
 		}
 
 		// Clone the repo
-		cloneCmd := exec.Command("git", "clone", repo, fullRepoPath)
+		cloneCmd := exec.Command("git", "clone", repo, newCfgPath)
 		if err := cloneCmd.Run(); err != nil {
 			log.Fatal(err)
 		}

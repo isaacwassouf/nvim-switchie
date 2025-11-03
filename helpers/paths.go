@@ -13,7 +13,7 @@ func GetBaseCfgPath() (string, error) {
 	return path.Join(homeDir, ".config"), nil
 }
 
-func GetReposPath() (string, error) {
+func GetInstalledCfgsPath() (string, error) {
 	baseCfgPath, err := GetBaseCfgPath()
 	if err != nil {
 		return "", err

@@ -11,7 +11,7 @@ import (
 var listCmd = &cobra.Command{
 	Use: "list",
 	Run: func(cmd *cobra.Command, args []string) {
-		reposPath, err := helpers.GetReposPath()
+		reposPath, err := helpers.GetInstalledCfgsPath()
 		if err != nil {
 			log.Fatal(err)
 		}
