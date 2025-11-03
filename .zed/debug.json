@@ -1,0 +1,13 @@
+[
+    {
+        "adapter": "Delve",
+        "label": "Debug add cmd",
+        "request": "launch",
+        "mode": "debug",
+        "program": ".",
+        "cwd": "$ZED_DIRNAME/../",
+        "args": ["add", "-r", "https://github.com/spf13/cobra.git"],
+        "buildFlags": [],
+        "env": {}
+    }
+]
