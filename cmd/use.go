@@ -26,7 +26,7 @@ var useCmd = &cobra.Command{
 		}
 
 		// check if a config currently exists
-		currentNvimCfg, err := helpers.GetNvimConfigPath()
+		currentNvimCfg, err := helpers.GetNvimCfgPath()
 		if err != nil {
 			log.Fatal(err)
 		}

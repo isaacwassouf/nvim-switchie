@@ -5,7 +5,7 @@ import (
 	"path"
 )
 
-func GetBaseConfigPath() (string, error) {
+func GetBaseCfgPath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
@@ -14,15 +14,15 @@ func GetBaseConfigPath() (string, error) {
 }
 
 func GetReposPath() (string, error) {
-	baseCfgPath, err := GetBaseConfigPath()
+	baseCfgPath, err := GetBaseCfgPath()
 	if err != nil {
 		return "", err
 	}
 	return path.Join(baseCfgPath, "switchie", "repos"), nil
 }
 
-func GetNvimConfigPath() (string, error) {
-	baseCfgPath, err := GetBaseConfigPath()
+func GetNvimCfgPath() (string, error) {
+	baseCfgPath, err := GetBaseCfgPath()
 	if err != nil {
 		return "", err
 	}
