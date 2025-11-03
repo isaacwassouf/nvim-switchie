@@ -10,14 +10,22 @@ import (
 )
 
 var repo string
-var toolReposPath string
+var name string
+
+var reposPath string
 
 var addCmd = &cobra.Command{
 	Use: "add",
 	Run: func(cmd *cobra.Command, args []string) {
-		repoPath := path.Join(toolReposPath, "testing")
-		cmdClone := exec.Command("git", "clone", repo, repoPath)
-		if err := cmdClone.Run(); err != nil {
+		fullRepoPath := path.Join(reposPath, name)
+
+		if _, err := os.Stat(fullRepoPath); !os.IsNotExist(err) {
+			log.Fatalf("Repo with name %s already exists", name)
+		}
+
+		// Clone the repo
+		cloneCmd := exec.Command("git", "clone", repo, fullRepoPath)
+		if err := cloneCmd.Run(); err != nil {
 			log.Fatal(err)
 		}
 	},
@@ -28,10 +36,13 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	toolReposPath = path.Join(homeDir, ".config", "switchie", "repos")
+	reposPath = path.Join(homeDir, ".config", "switchie", "repos")
 
 	addCmd.Flags().StringVarP(&repo, "repo", "r", "", "Repo that contains the config")
+	addCmd.Flags().StringVarP(&name, "name", "n", "", "Name of the config")
+
 	addCmd.MarkFlagRequired("repo")
+	addCmd.MarkFlagRequired("name")
 
 	rootCmd.AddCommand(addCmd)
 }
