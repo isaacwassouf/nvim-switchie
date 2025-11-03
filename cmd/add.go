@@ -6,19 +6,22 @@ import (
 	"os/exec"
 	"path"
 
+	"github.com/isaacwassouf/nvim-config-switcher/helpers"
 	"github.com/spf13/cobra"
 )
 
 var repo string
 var name string
 
-var reposPath string
-
 var addCmd = &cobra.Command{
 	Use: "add",
 	Run: func(cmd *cobra.Command, args []string) {
-		fullRepoPath := path.Join(reposPath, name)
+		reposPath, err := helpers.GetReposPath()
+		if err != nil {
+			log.Fatal(err)
+		}
 
+		fullRepoPath := path.Join(reposPath, name)
 		if _, err := os.Stat(fullRepoPath); !os.IsNotExist(err) {
 			log.Fatalf("Repo with name %s already exists", name)
 		}
@@ -32,12 +35,6 @@ var addCmd = &cobra.Command{
 }
 
 func init() {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatal(err)
-	}
-	reposPath = path.Join(homeDir, ".config", "switchie", "repos")
-
 	addCmd.Flags().StringVarP(&repo, "repo", "r", "", "Repo that contains the config")
 	addCmd.Flags().StringVarP(&name, "name", "n", "", "Name of the config")
 
