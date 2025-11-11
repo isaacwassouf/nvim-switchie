@@ -5,7 +5,7 @@ import (
 	"path"
 )
 
-func GetBaseCfgPath() (string, error) {
+func GetUserCfgPath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
@@ -13,18 +13,26 @@ func GetBaseCfgPath() (string, error) {
 	return path.Join(homeDir, ".config"), nil
 }
 
-func GetInstalledCfgsPath() (string, error) {
-	baseCfgPath, err := GetBaseCfgPath()
+func GetToolCfgPath() (string, error) {
+	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
-	return path.Join(baseCfgPath, "switchie", "repos"), nil
+	return path.Join(homeDir, ".config", "switchie"), nil
+}
+
+func GetInstalledCfgsPath() (string, error) {
+	toolCfgPath, err := GetToolCfgPath()
+	if err != nil {
+		return "", err
+	}
+	return path.Join(toolCfgPath, "repos"), nil
 }
 
 func GetNvimCfgPath() (string, error) {
-	baseCfgPath, err := GetBaseCfgPath()
+	userCfgPath, err := GetUserCfgPath()
 	if err != nil {
 		return "", err
 	}
-	return path.Join(baseCfgPath, "nvim"), nil
+	return path.Join(userCfgPath, "nvim"), nil
 }
