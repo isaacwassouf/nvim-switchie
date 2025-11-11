@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/isaacwassouf/nvim-config-switcher/configs"
 	"github.com/isaacwassouf/nvim-config-switcher/helpers"
 	"github.com/spf13/cobra"
 )
@@ -15,18 +16,18 @@ var useCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 
-		installedCfgsPath, err := helpers.GetInstalledCfgsPath()
+		addCfgPath, err := helpers.PathFromUserCfg(configs.ToolCfgDir, configs.AddCfgsDir)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		// check if the config with the given name exists
-		cfgPath := path.Join(installedCfgsPath, name)
+		cfgPath := path.Join(addCfgPath, name)
 		if _, err := os.Stat(cfgPath); os.IsNotExist(err) {
 			log.Fatalf("Repo with name %s does not exist", name)
 		}
 
-		currentNvimCfg, err := helpers.GetNvimCfgPath()
+		currentNvimCfg, err := helpers.PathFromUserCfg("nvim")
 		if err != nil {
 			log.Fatal(err)
 		}

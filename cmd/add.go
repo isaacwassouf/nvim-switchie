@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path"
 
+	"github.com/isaacwassouf/nvim-config-switcher/configs"
 	"github.com/isaacwassouf/nvim-config-switcher/helpers"
 	"github.com/spf13/cobra"
 )
@@ -16,12 +17,12 @@ var name string
 var addCmd = &cobra.Command{
 	Use: "add",
 	Run: func(cmd *cobra.Command, args []string) {
-		reposPath, err := helpers.GetInstalledCfgsPath()
+		addCfgPath, err := helpers.PathFromUserCfg(configs.ToolCfgDir, configs.AddCfgsDir)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		newCfgPath := path.Join(reposPath, name)
+		newCfgPath := path.Join(addCfgPath, name)
 		if _, err := os.Stat(newCfgPath); !os.IsNotExist(err) {
 			log.Fatalf("Repo with name %s already exists", name)
 		}

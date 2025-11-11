@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/isaacwassouf/nvim-config-switcher/configs"
 	"github.com/isaacwassouf/nvim-config-switcher/helpers"
 	"github.com/spf13/cobra"
 )
@@ -13,7 +14,7 @@ var initCmd = &cobra.Command{
 	Use: "init",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		toolConfigDir, err := helpers.GetToolCfgPath()
+		toolConfigDir, err := helpers.PathFromUserCfg(configs.ToolCfgDir)
 		if err != nil {
 			log.Fatalf("Could not get the tool config directory: %v", err)
 		}
@@ -27,7 +28,7 @@ var initCmd = &cobra.Command{
 			fmt.Printf("Successfully created: %s \n", toolConfigDir)
 		}
 
-		toolRepoDir, err := helpers.GetInstalledCfgsPath()
+		toolRepoDir, err := helpers.PathFromUserCfg(configs.ToolCfgDir, configs.AddCfgsDir)
 		if err != nil {
 			log.Fatalf("Could not get the tool repos directory: %v", err)
 		}

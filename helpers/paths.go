@@ -13,6 +13,15 @@ func GetUserCfgPath() (string, error) {
 	return path.Join(homeDir, ".config"), nil
 }
 
+func PathFromUserCfg(elements ...string) (string, error) {
+	basePath, err := GetUserCfgPath()
+	if err != nil {
+		return "", err
+	}
+	allElements := append([]string{basePath}, elements...)
+	return path.Join(allElements...), nil
+}
+
 func GetToolCfgPath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
