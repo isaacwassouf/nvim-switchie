@@ -21,33 +21,19 @@ var useCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		// check if the config with the given name exists
+		// check if the config with the given name does not exist
 		newCfgPath := path.Join(addCfgPath, name)
 		if _, err := os.Stat(newCfgPath); os.IsNotExist(err) {
 			log.Fatalf("Repo with name %s does not exist", name)
 		}
 
-		currentNvimCfg, err := helpers.PathFromUserCfg("nvim")
+		nvimCfgPath, err := helpers.PathFromUserCfg("nvim")
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		// if there's a backup already, remove it
-		if _, err = os.Stat(currentNvimCfg + ".bak"); err == nil {
-			if err = os.RemoveAll(currentNvimCfg + ".bak"); err != nil {
-				log.Fatal(err)
-			}
-		}
-
-		// rename current config to backup
-		if _, err = os.Stat(currentNvimCfg); err == nil {
-			if err = os.Rename(currentNvimCfg, currentNvimCfg+".bak"); err != nil {
-				log.Fatal(err)
-			}
-		}
-
 		// create a symlink to the new config
-		if err = os.Symlink(newCfgPath, currentNvimCfg); err != nil {
+		if err = os.Symlink(newCfgPath, nvimCfgPath); err != nil {
 			log.Fatal(err)
 		}
 
