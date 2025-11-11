@@ -22,8 +22,8 @@ var useCmd = &cobra.Command{
 		}
 
 		// check if the config with the given name exists
-		cfgPath := path.Join(addCfgPath, name)
-		if _, err := os.Stat(cfgPath); os.IsNotExist(err) {
+		newCfgPath := path.Join(addCfgPath, name)
+		if _, err := os.Stat(newCfgPath); os.IsNotExist(err) {
 			log.Fatalf("Repo with name %s does not exist", name)
 		}
 
@@ -47,7 +47,7 @@ var useCmd = &cobra.Command{
 		}
 
 		// create a symlink to the new config
-		if err = os.Symlink(cfgPath, currentNvimCfg); err != nil {
+		if err = os.Symlink(newCfgPath, currentNvimCfg); err != nil {
 			log.Fatal(err)
 		}
 
