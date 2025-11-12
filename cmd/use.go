@@ -32,9 +32,22 @@ var useCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
+		// if the symlink already exists, remove it
+		if _, err := os.Lstat(nvimCfgPath); err == nil {
+			if err = os.Remove(nvimCfgPath); err != nil {
+				log.Fatal(err)
+			}
+		}
+
 		// create a symlink to the new config
 		if err = os.Symlink(newCfgPath, nvimCfgPath); err != nil {
 			log.Fatal(err)
+		}
+
+		historyItem := helpers.NewHistoryItem("", name)
+
+		if err = helpers.AddHistoryItem(historyItem); err != nil {
+			log.Fatalf("Could not add history item: %v", err)
 		}
 
 		log.Printf("Switched to repo %s", name)

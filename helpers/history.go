@@ -19,14 +19,13 @@ func NewHistoryItem(from, to string) *HistoryItem {
 	}
 }
 
-func AddHistoryItem(item HistoryItem) error {
-
+func AddHistoryItem(item *HistoryItem) error {
 	historyFilePath, err := PathFromUserCfg(configs.ToolCfgDir, configs.HistoryFile)
 	if err != nil {
 		return err
 	}
-	historyData, err := os.ReadFile(historyFilePath)
 
+	historyData, err := os.ReadFile(historyFilePath)
 	if err != nil {
 		return err
 	}
@@ -36,7 +35,12 @@ func AddHistoryItem(item HistoryItem) error {
 		return err
 	}
 
-	history = append(history, item)
+	if len(history) > 0 {
+		lastItem := history[len(history)-1]
+		item.From = lastItem.To
+	}
+
+	history = append(history, *item)
 
 	updatedHistoryData, err := json.MarshalIndent(history, "", "  ")
 	if err != nil {

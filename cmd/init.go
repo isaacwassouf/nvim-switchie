@@ -48,12 +48,6 @@ var initCmd = &cobra.Command{
 			log.Fatalf("Could not move initial nvim config: %v", err)
 		}
 
-		historyItem := helpers.NewHistoryItem("", "default-nvim-config")
-
-		if err = helpers.AddHistoryItem(*historyItem); err != nil {
-			log.Fatalf("Could not add history item: %v", err)
-		}
-
 		log.Println("Initialization completed successfully.")
 
 	},
@@ -104,6 +98,12 @@ func moveInitalNvimConfig(addCfgsPath string) error {
 		err = os.Symlink(destPath, nvimCfgPath)
 		if err != nil {
 			return err
+		}
+
+		historyItem := helpers.NewHistoryItem("", "default-nvim-config")
+
+		if err = helpers.AddHistoryItem(historyItem); err != nil {
+			log.Fatalf("Could not add history item: %v", err)
 		}
 	}
 
