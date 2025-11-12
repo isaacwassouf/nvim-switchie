@@ -1,6 +1,7 @@
 package configs
 
 const (
-	ToolCfgDir = "switchie"
-	AddCfgsDir = "repos"
+	ToolCfgDir  = "switchie"
+	AddCfgsDir  = "repos"
+	HistoryFile = "history.json"
 )
