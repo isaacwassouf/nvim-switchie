@@ -1,12 +1,11 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os"
-	"path"
+	"path/filepath"
 
-	"github.com/isaacwassouf/nvim-config-switcher/configs"
-	"github.com/isaacwassouf/nvim-config-switcher/helpers"
 	"github.com/spf13/cobra"
 )
 
@@ -14,43 +13,28 @@ var useCmd = &cobra.Command{
 	Use:  "use",
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		name := args[0]
+		configName := args[0]
 
-		addCfgPath, err := helpers.PathFromUserCfg(configs.ToolCfgDir, configs.AddCfgsDir)
+		home, err := os.UserHomeDir()
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("could not determine home directory: %v", err)
 		}
 
-		// check if the config with the given name does not exist
-		newCfgPath := path.Join(addCfgPath, name)
-		if _, err := os.Stat(newCfgPath); os.IsNotExist(err) {
-			log.Fatalf("Repo with name %s does not exist", name)
-		}
-
-		nvimCfgPath, err := helpers.PathFromUserCfg("nvim")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// if the symlink already exists, remove it
-		if _, err := os.Lstat(nvimCfgPath); err == nil {
-			if err = os.Remove(nvimCfgPath); err != nil {
-				log.Fatal(err)
+		configDir := filepath.Join(home, ".config", "ghayr", "configs", configName)
+		if _, err := os.Stat(configDir); err != nil {
+			if os.IsNotExist(err) {
+				log.Fatalf("config '%s' does not exist", configName)
 			}
+			log.Fatalf("could not check config directory: %v", err)
 		}
 
-		// create a symlink to the new config
-		if err = os.Symlink(newCfgPath, nvimCfgPath); err != nil {
-			log.Fatal(err)
+		currentFile := filepath.Join(home, ".config", "ghayr", ".current")
+		if err := os.WriteFile(currentFile, []byte(configName), 0644); err != nil {
+			log.Fatalf("could not write to .current file: %v", err)
 		}
 
-		historyItem := helpers.NewHistoryItem("", name)
+		fmt.Printf("Switched to config '%s'\n", configName)
 
-		if err = helpers.AddHistoryItem(historyItem); err != nil {
-			log.Fatalf("Could not add history item: %v", err)
-		}
-
-		log.Printf("Switched to repo %s", name)
 	},
 }
 

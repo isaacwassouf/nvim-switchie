@@ -1,113 +1,86 @@
 package cmd
 
 import (
-	"log"
+	"fmt"
 	"os"
-	"path"
+	"path/filepath"
+	"strings"
 
-	"github.com/isaacwassouf/nvim-config-switcher/configs"
-	"github.com/isaacwassouf/nvim-config-switcher/helpers"
+	"github.com/isaacwassouf/nvim-config-switcher/internal/scripts"
 	"github.com/spf13/cobra"
 )
 
 var initCmd = &cobra.Command{
 	Use: "init",
 	Run: func(cmd *cobra.Command, args []string) {
-
-		// 1. Check if already initialized
-		if hasBeenInitialized() {
-			log.Fatal("The tool has already been initialized.")
+		if err := bootstrapConfig(); err != nil {
+			panic(err)
 		}
 
-		toolCfgPath, err := helpers.PathFromUserCfg(configs.ToolCfgDir)
-		if err != nil {
-			log.Fatalf("Could not get the tool config directory: %v", err)
+		if err := addShellFunc(); err != nil {
+			panic(err)
 		}
-		// 2. Create tool config directory
-		err = os.MkdirAll(toolCfgPath, 0755)
-		if err != nil {
-			log.Fatalf("Could not create the directory: %s", toolCfgPath)
-		}
-
-		addCfgsPath, err := helpers.PathFromUserCfg(configs.ToolCfgDir, configs.AddCfgsDir)
-		if err != nil {
-			log.Fatalf("Could not get the tool repos directory: %v", err)
-		}
-		// 3. Create additional configs directory, i,e, where all the configs will be stored
-		if err = os.Mkdir(addCfgsPath, 0755); err != nil {
-			log.Fatalf("Could not create repos directory: %s", addCfgsPath)
-		}
-
-		// 4. Create history file
-		if err = writeHistoryFile(); err != nil {
-			log.Fatalf("Could not create history file: %v", err)
-		}
-
-		// 5. Move initial nvim config to tool configs directory
-		if err = moveInitalNvimConfig(addCfgsPath); err != nil {
-			log.Fatalf("Could not move initial nvim config: %v", err)
-		}
-
-		log.Println("Initialization completed successfully.")
-
 	},
 }
 
-func hasBeenInitialized() bool {
-	toolCfgPath, err := helpers.PathFromUserCfg(configs.ToolCfgDir)
+func bootstrapConfig() error {
+	home, err := os.UserHomeDir()
 	if err != nil {
-		log.Fatalf("Could not get the tool config directory: %v", err)
+		return fmt.Errorf("could not determine home directory: %w", err)
 	}
 
-	if _, err = os.Stat(toolCfgPath); os.IsNotExist(err) {
-		return false
+	configDir := filepath.Join(home, ".config", "ghayr", "configs")
+
+	if err := os.MkdirAll(configDir, 0755); err != nil {
+		return fmt.Errorf("could not create config directory: %w", err)
 	}
 
-	return true
-}
-
-func writeHistoryFile() error {
-	// create history.json
-	historyFilePath, err := helpers.PathFromUserCfg(configs.ToolCfgDir, configs.HistoryFile)
-	if err != nil {
-		return err
-	}
-
-	err = os.WriteFile(historyFilePath, []byte("[]"), 0744)
-	if err != nil {
-		return err
+	currentFile := filepath.Join(home, ".config", "ghayr", ".current")
+	if _, err := os.Stat(currentFile); err != nil {
+		if !os.IsNotExist(err) {
+			return fmt.Errorf("could not check .current file: %w", err)
+		}
+		f, err := os.Create(currentFile)
+		if err != nil {
+			return fmt.Errorf("could not create .current file: %w", err)
+		}
+		defer f.Close()
 	}
 
 	return nil
 }
 
-func moveInitalNvimConfig(addCfgsPath string) error {
-	nvimCfgPath, err := helpers.PathFromUserCfg("nvim")
+func addShellFunc() error {
+	rcFilePath, err := getRCShellPath()
 	if err != nil {
 		return err
 	}
 
-	if _, err = os.Stat(nvimCfgPath); err == nil {
-		destPath := path.Join(addCfgsPath, "default-nvim-config")
+	f, err := os.OpenFile(rcFilePath, os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
 
-		err = os.Rename(nvimCfgPath, destPath)
-		if err != nil {
-			return err
-		}
+	_, err = fmt.Fprint(f, scripts.Nvims)
+	return err
+}
 
-		err = os.Symlink(destPath, nvimCfgPath)
-		if err != nil {
-			return err
-		}
-
-		historyItem := helpers.NewHistoryItem("", "default-nvim-config")
-
-		if err = helpers.AddHistoryItem(historyItem); err != nil {
-			log.Fatalf("Could not add history item: %v", err)
-		}
+func getRCShellPath() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("could not determine home directory: %w", err)
 	}
 
-	return nil
+	shell := os.Getenv("SHELL")
+	switch {
+	case strings.HasSuffix(shell, "zsh"):
+		return filepath.Join(home, ".zshrc"), nil
+	case strings.HasSuffix(shell, "bash"):
+		return filepath.Join(home, ".bashrc"), nil
+	default:
+		return "", fmt.Errorf("unsupported shell: %s", shell)
+	}
 }
 
 func init() {

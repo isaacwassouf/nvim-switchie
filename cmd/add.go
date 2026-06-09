@@ -1,13 +1,12 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
 
-	"github.com/isaacwassouf/nvim-config-switcher/configs"
-	"github.com/isaacwassouf/nvim-config-switcher/helpers"
 	"github.com/spf13/cobra"
 )
 
@@ -17,18 +16,15 @@ var name string
 var addCmd = &cobra.Command{
 	Use: "add",
 	Run: func(cmd *cobra.Command, args []string) {
-		addCfgPath, err := helpers.PathFromUserCfg(configs.ToolCfgDir, configs.AddCfgsDir)
+		home, err := os.UserHomeDir()
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal(fmt.Errorf("could not determine home directory: %w", err))
 		}
 
-		newCfgPath := path.Join(addCfgPath, name)
-		if _, err := os.Stat(newCfgPath); !os.IsNotExist(err) {
-			log.Fatalf("Repo with name %s already exists", name)
-		}
+		config := filepath.Join(home, ".config", "ghayr", "configs", name)
 
 		// Clone the repo
-		cloneCmd := exec.Command("git", "clone", repo, newCfgPath)
+		cloneCmd := exec.Command("git", "clone", repo, config)
 		if err := cloneCmd.Run(); err != nil {
 			log.Fatal(err)
 		}
