@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/isaacwassouf/nvim-config-switcher/internal/scripts"
+	"github.com/isaacwassouf/ghayr/internal/scripts"
 	"github.com/spf13/cobra"
 )
 

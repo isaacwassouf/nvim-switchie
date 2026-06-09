@@ -1,4 +1,4 @@
-module github.com/isaacwassouf/nvim-config-switcher
+module github.com/isaacwassouf/ghayr
 
 go 1.24
 

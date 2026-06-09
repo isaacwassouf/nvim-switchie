@@ -14,7 +14,7 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use: "switchie",
+	Use: "ghayr",
 	Run: func(cmd *cobra.Command, args []string) {
 		selfCmd, err := os.Executable()
 		if err != nil {
